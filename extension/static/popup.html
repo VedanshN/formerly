@@ -65,10 +65,19 @@
   </style>
 </head>
 <body>
-  <h3>Create Google Form</h3>
-  <p class="subtitle">Describe the form you want to make</p>
-  <textarea id="prompt" placeholder="E.g., A volunteer sign-up form..."></textarea>
-  <button id="generateBtn">Generate Form</button>
+  <h3>Formerly</h3>
+  
+  <div id="signin-section">
+    <p class="subtitle" style="margin-bottom: 12px;">Sign in with Google to create forms directly in your Drive.</p>
+    <button id="signinBtn">Sign In / Authorize</button>
+  </div>
+
+  <div id="app-section" style="display: none;">
+    <p class="subtitle">Describe the form you want to make</p>
+    <textarea id="prompt" placeholder="E.g., A volunteer sign-up form..."></textarea>
+    <button id="generateBtn">Generate Form</button>
+  </div>
+  
   <div id="status"></div>
   
   <script src="../js/browser-polyfill.js"></script>

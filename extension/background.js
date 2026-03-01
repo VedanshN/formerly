@@ -12,6 +12,26 @@ browser.runtime.onInstalled.addListener(() => {
 
 // Listen for messages from the popup
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "check_auth") {
+    // Check if we already have a cached token without triggering a popup
+    chrome.identity.getAuthToken({ interactive: false }, (token) => {
+      sendResponse({ authenticated: !!token });
+    });
+    return true;
+  }
+
+  if (message.action === "authenticate") {
+    // Explicitly request auth with an interactive popup if necessary
+    chrome.identity.getAuthToken({ interactive: true }, (token) => {
+      if (chrome.runtime.lastError || !token) {
+        sendResponse({ success: false, error: chrome.runtime.lastError?.message || "Authentication failed" });
+      } else {
+        sendResponse({ success: true });
+      }
+    });
+    return true;
+  }
+
   if (message.action === "generate_form") {
     handleGenerateForm(message.prompt)
       .then(result => sendResponse(result))
@@ -26,7 +46,19 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleGenerateForm(prompt) {
   try {
-    // 1. Send prompt to backend proxy to get generated JSON
+    // 1. Get OAuth token (should already be cached by the sign-in button)
+    console.log("Getting OAuth token...");
+    const token = await new Promise((resolve, reject) => {
+      chrome.identity.getAuthToken({ interactive: false }, (token) => {
+        if (chrome.runtime.lastError || !token) {
+          reject(new Error(chrome.runtime.lastError?.message || "Not authenticated. Please sign in first."));
+        } else {
+          resolve(token);
+        }
+      });
+    });
+
+    // 2. Send prompt to backend proxy to get generated JSON
     console.log("Sending prompt to backend proxy...");
     const response = await fetch("http://localhost:3000/api/generate-form", {
       method: "POST",
@@ -37,23 +69,11 @@ async function handleGenerateForm(prompt) {
     });
 
     if (!response.ok) {
-      throw new Error(`Backend error: ${response.status}`);
+        throw new Error(`Backend error: ${response.status}`);
     }
 
     const aiFormData = await response.json();
     console.log("Received form data from backend:", aiFormData);
-
-    // 2. Get OAuth token using Chrome Identity API
-    console.log("Getting OAuth token...");
-    const token = await new Promise((resolve, reject) => {
-      chrome.identity.getAuthToken({ interactive: true }, (token) => {
-        if (chrome.runtime.lastError || !token) {
-          reject(new Error(chrome.runtime.lastError?.message || "Failed to get auth token. Did you configure the OAuth Client ID?"));
-        } else {
-          resolve(token);
-        }
-      });
-    });
 
     // 3. Create a blank Google Form via API
     console.log("Creating blank form...");
@@ -108,7 +128,7 @@ async function handleGenerateForm(prompt) {
 function buildBatchUpdates(aiData) {
   const requests = [];
 
-  // 1. Update Description
+  // ... (rest of buildBatchUpdates remains the same, included for completeness)
   if (aiData.description) {
     requests.push({
       updateFormInfo: {
@@ -118,7 +138,6 @@ function buildBatchUpdates(aiData) {
     });
   }
 
-  // 2. Add Questions
   if (aiData.questions && aiData.questions.length > 0) {
     aiData.questions.forEach((q, index) => {
       const item = {
@@ -128,7 +147,6 @@ function buildBatchUpdates(aiData) {
         }
       };
 
-      // Map our simplified types to Google Forms API types
       if (q.type === "SHORT_ANSWER") {
         item.questionItem.question.textQuestion = {};
       } else if (q.type === "PARAGRAPH") {
@@ -140,7 +158,6 @@ function buildBatchUpdates(aiData) {
         };
         item.questionItem.question.choiceQuestion = choiceQuestion;
       } else {
-        // Fallback for unknown type
         item.questionItem.question.textQuestion = {};
       }
 

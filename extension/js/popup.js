@@ -1,8 +1,46 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  const signinSection = document.getElementById("signin-section");
+  const appSection = document.getElementById("app-section");
+  const signinBtn = document.getElementById("signinBtn");
   const generateBtn = document.getElementById("generateBtn");
   const promptInput = document.getElementById("prompt");
   const statusDiv = document.getElementById("status");
 
+  // Check auth status on load without triggering interactive prompt
+  try {
+    const response = await browser.runtime.sendMessage({ action: "check_auth" });
+    if (response.authenticated) {
+      showApp();
+    } else {
+      showSignIn();
+    }
+  } catch (err) {
+    console.error("Auth check failed", err);
+    showSignIn();
+  }
+
+  // Handle explicit sign in
+  signinBtn.addEventListener("click", async () => {
+    signinBtn.disabled = true;
+    signinBtn.textContent = "Authenticating...";
+    statusDiv.textContent = "";
+
+    try {
+      const response = await browser.runtime.sendMessage({ action: "authenticate" });
+      if (response.success) {
+        showApp();
+      } else {
+        throw new Error(response.error);
+      }
+    } catch (err) {
+      statusDiv.textContent = "Auth failed: " + err.message;
+      statusDiv.style.color = "red";
+      signinBtn.disabled = false;
+      signinBtn.textContent = "Sign In / Authorize";
+    }
+  });
+
+  // Handle form generation
   generateBtn.addEventListener("click", async () => {
     const prompt = promptInput.value.trim();
     if (!prompt) return;
@@ -12,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     statusDiv.style.color = "#555";
 
     try {
-      // Send message to background script
       const response = await browser.runtime.sendMessage({
         action: "generate_form",
         prompt: prompt
@@ -33,4 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
       generateBtn.disabled = false;
     }
   });
+
+  function showApp() {
+    signinSection.style.display = "none";
+    appSection.style.display = "block";
+    statusDiv.textContent = "";
+  }
+
+  function showSignIn() {
+    signinSection.style.display = "block";
+    appSection.style.display = "none";
+  }
 });
