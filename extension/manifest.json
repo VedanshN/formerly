@@ -7,6 +7,11 @@
     "activeTab",
     "scripting"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "formerly@formerly.com"
+    }
+  },
   "background": {
     "service_worker": "background.js"
   },
@@ -17,12 +22,12 @@
         "js/content-script.js"
       ],
       "matches": [
-        "<all_urls>"
+        "https://docs.google.com/forms/*"
       ]
     }
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "static/popup.html",
     "default_icon": "icon.png"
   }
 }
