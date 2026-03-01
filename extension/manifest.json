@@ -9,7 +9,7 @@
     "identity"
   ],
   "oauth2": {
-    "client_id": "YOUR_CLIENT_ID_HERE",
+    "client_id": "721197352862-0r5h8a4o500me6i4f5hn4no8ciescq12.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/forms.body"
     ]
@@ -23,7 +23,6 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "static/popup.html",
-    "default_icon": "icon.png"
+    "default_popup": "static/popup.html"
   }
 }
