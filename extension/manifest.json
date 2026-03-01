@@ -5,8 +5,15 @@
   "manifest_version": 3,
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "identity"
   ],
+  "oauth2": {
+    "client_id": "YOUR_CLIENT_ID_HERE",
+    "scopes": [
+      "https://www.googleapis.com/auth/forms.body"
+    ]
+  },
   "browser_specific_settings": {
     "gecko": {
       "id": "formerly@formerly.com"
@@ -15,17 +22,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "js": [
-        "js/browser-polyfill.js",
-        "js/content-script.js"
-      ],
-      "matches": [
-        "https://docs.google.com/forms/*"
-      ]
-    }
-  ],
   "action": {
     "default_popup": "static/popup.html",
     "default_icon": "icon.png"
