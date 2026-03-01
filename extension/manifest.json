@@ -1,0 +1,28 @@
+{
+  "background": {
+    "scripts": ["js/browser-polyfill.js", "js/background.js"]
+  },
+  "content_scripts": [
+    {
+      "js": ["js/browser-polyfill.js", "js/content-script.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+
+{
+  "name": "My Hello Extension",
+  "version": "1.0",
+  "description": "A simple cross-browser extension.",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "permissions": ["activeTab"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hello-world@yourdomain.com"
+    }
+  }
+}
