@@ -4,12 +4,46 @@
   <meta charset="utf-8">
   <title>Formerly</title>
   <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #202124;
+      --subtitle-color: #5f6368;
+      --input-bg: #ffffff;
+      --input-border: #cccccc;
+      --input-focus: #4285f4;
+      --btn-bg: #4285f4;
+      --btn-hover: #3367d6;
+      --btn-disabled: #a0c3ff;
+      --btn-text: #ffffff;
+      --status-color: #555555;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #202124;
+        --text-color: #e8eaed;
+        --heading-color: #e8eaed;
+        --subtitle-color: #9aa0a6;
+        --input-bg: #303134;
+        --input-border: #5f6368;
+        --input-focus: #8ab4f8;
+        --btn-bg: #8ab4f8;
+        --btn-hover: #aecbfa;
+        --btn-disabled: #3c4043;
+        --btn-text: #202124;
+        --status-color: #9aa0a6;
+      }
+    }
+
     body {
       width: 320px;
       padding: 15px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      color: #333;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      transition: background-color 0.2s, color 0.2s;
     }
     textarea {
       width: 100%;
@@ -18,20 +52,22 @@
       margin-bottom: 12px;
       padding: 8px;
       box-sizing: border-box;
-      border: 1px solid #ccc;
+      border: 1px solid var(--input-border);
+      background-color: var(--input-bg);
+      color: var(--text-color);
       border-radius: 4px;
       resize: none;
       font-family: inherit;
     }
     textarea:focus {
       outline: none;
-      border-color: #4285f4;
+      border-color: var(--input-focus);
     }
     button {
       width: 100%;
       padding: 10px;
-      background-color: #4285f4;
-      color: white;
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -39,28 +75,29 @@
       font-size: 14px;
     }
     button:hover {
-      background-color: #3367d6;
+      background-color: var(--btn-hover);
     }
     button:disabled {
-      background-color: #a0c3ff;
+      background-color: var(--btn-disabled);
+      color: #9aa0a6;
       cursor: not-allowed;
     }
     #status {
       margin-top: 12px;
       font-size: 13px;
-      color: #555;
+      color: var(--status-color);
       min-height: 18px;
       text-align: center;
     }
     h3 {
       margin: 0 0 5px 0;
       font-size: 16px;
-      color: #202124;
+      color: var(--heading-color);
     }
     p.subtitle {
       margin: 0;
       font-size: 12px;
-      color: #5f6368;
+      color: var(--subtitle-color);
     }
   </style>
 </head>
