@@ -29,7 +29,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ success: true });
       }
     });
-    return true;
+    return true; // Return true to keep the message channel open for the async response
   }
 
   if (message.action === "generate_form") {
