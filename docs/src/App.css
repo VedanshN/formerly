@@ -1,0 +1,7 @@
+.app {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.app--mounted {
+  opacity: 1;
+}
