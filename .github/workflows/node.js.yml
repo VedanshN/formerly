@@ -27,4 +27,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm run dev
+    - run: npm run build  # Generate static files
+    - name: Deploy
+      uses: actions/upload-pages-artifact@v2  # or another deployment action
+      with:
+        path: './landing/dist'  # or wherever your build outputs tos
