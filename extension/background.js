@@ -191,32 +191,40 @@ function buildBatchUpdates(aiData) {
 
   if (aiData.questions && aiData.questions.length > 0) {
     aiData.questions.forEach((q, index) => {
-      const item = {
-        title: q.title,
-        questionItem: {
-          question: {}
-        }
+      let item = {
+        title: q.title
       };
 
-      if (q.type === "SHORT_ANSWER") {
-        item.questionItem.question.textQuestion = {};
-      } else if (q.type === "PARAGRAPH") {
-        item.questionItem.question.textQuestion = { paragraph: true };
-      } else if (q.type === "SCALE") {
-        item.questionItem.question.scaleQuestion = {
-          low: q.scale?.low ?? 1,
-          high: q.scale?.high ?? 5,
-          lowLabel: q.scale?.lowLabel || "",
-          highLabel: q.scale?.highLabel || ""
-        };
-      } else if (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES" || q.type === "DROPDOWN") {
-        const choiceQuestion = {
-          type: q.type === "MULTIPLE_CHOICE" ? "RADIO" : q.type === "CHECKBOXES" ? "CHECKBOX" : "DROP_DOWN",
-          options: (q.options || ["Option 1"]).map(opt => ({ value: opt }))
-        };
-        item.questionItem.question.choiceQuestion = choiceQuestion;
+      // Add description if it's a section header
+      if (q.description && q.type === "SECTION_HEADER") {
+        item.description = q.description;
+      }
+
+      if (q.type === "SECTION_HEADER") {
+        item.pageBreakItem = {};
       } else {
-        item.questionItem.question.textQuestion = {};
+        item.questionItem = { question: {} };
+
+        if (q.type === "SHORT_ANSWER") {
+          item.questionItem.question.textQuestion = {};
+        } else if (q.type === "PARAGRAPH") {
+          item.questionItem.question.textQuestion = { paragraph: true };
+        } else if (q.type === "SCALE") {
+          item.questionItem.question.scaleQuestion = {
+            low: q.scale?.low ?? 1,
+            high: q.scale?.high ?? 5,
+            lowLabel: q.scale?.lowLabel || "",
+            highLabel: q.scale?.highLabel || ""
+          };
+        } else if (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES" || q.type === "DROPDOWN") {
+          const choiceQuestion = {
+            type: q.type === "MULTIPLE_CHOICE" ? "RADIO" : q.type === "CHECKBOXES" ? "CHECKBOX" : "DROP_DOWN",
+            options: (q.options || ["Option 1"]).map(opt => ({ value: opt }))
+          };
+          item.questionItem.question.choiceQuestion = choiceQuestion;
+        } else {
+          item.questionItem.question.textQuestion = {};
+        }
       }
 
       requests.push({

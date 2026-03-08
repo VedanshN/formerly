@@ -50,10 +50,11 @@ You must respond with ONLY a raw JSON object matching this schema exactly:
   "description": "String, the description of the form",
   "questions": [
     {
-      "title": "String, the question text",
-      "type": "String, EXACTLY ONE OF: 'SHORT_ANSWER', 'PARAGRAPH', 'MULTIPLE_CHOICE', 'CHECKBOXES', 'DROPDOWN', 'SCALE'",
+      "title": "String, the question text (or Section Title if type is SECTION_HEADER)",
+      "type": "String, EXACTLY ONE OF: 'SHORT_ANSWER', 'PARAGRAPH', 'MULTIPLE_CHOICE', 'CHECKBOXES', 'DROPDOWN', 'SCALE', 'SECTION_HEADER'",
       "options": ["String", "array of choices, ONLY if type is MULTIPLE_CHOICE, CHECKBOXES, or DROPDOWN"],
-      "scale": {"low": 1, "high": 5, "lowLabel": "Poor", "highLabel": "Excellent"} // ONLY if type is SCALE. 'low' must be 0 or 1. 'high' must be 2 to 10.
+      "scale": {"low": 1, "high": 5, "lowLabel": "Poor", "highLabel": "Excellent"}, // ONLY if type is SCALE. 'low' must be 0 or 1. 'high' must be 2 to 10.
+      "description": "String, optional description ONLY if type is SECTION_HEADER"
     }
   ]
 }`,
