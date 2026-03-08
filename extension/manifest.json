@@ -8,6 +8,10 @@
     "scripting",
     "identity"
   ],
+  "host_permissions": [
+    "http://localhost:3000/",
+    "https://forms.googleapis.com/"
+  ],
   "oauth2": {
     "client_id": "721197352862-3gqq00qkjt21pds2bbtkp4u7go6qf6cn.apps.googleusercontent.com",
     "scopes": [
@@ -20,7 +24,8 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["js/browser-polyfill.js", "background.js"]
   },
   "action": {
     "default_popup": "static/popup.html"

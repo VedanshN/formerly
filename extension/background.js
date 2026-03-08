@@ -1,8 +1,72 @@
-// At the top of background.js
-try {
-  importScripts("js/browser-polyfill.js");
-} catch (e) {
-  console.error("Polyfill import failed", e);
+// Load polyfill — only needed in Chrome's service worker context.
+// In Firefox, it's already loaded via background.scripts in the manifest.
+if (typeof importScripts !== "undefined") {
+  try {
+    importScripts("js/browser-polyfill.js");
+  } catch (e) {
+    console.error("Polyfill import failed", e);
+  }
+}
+
+// Detect browser environment
+const IS_FIREFOX = typeof browser !== "undefined" && 
+  navigator.userAgent.includes("Firefox");
+
+// Simple in-memory token cache for Firefox (Chrome caches automatically)
+let _firefoxToken = null;
+
+// Google OAuth Client IDs
+// Chrome uses the Extension-type Client ID (matched against Extension ID in Google Cloud).
+// Firefox requires a Web Application-type Client ID with the redirect URL added as an authorized redirect URI.
+// To get your Firefox redirect URL: open about:debugging → Inspect your extension → run browser.identity.getRedirectURL() in the console.
+const GOOGLE_CLIENT_ID_CHROME  = "721197352862-3gqq00qkjt21pds2bbtkp4u7go6qf6cn.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID_FIREFOX = "721197352862-n3uisqfshh7n79g9anudr873pi6pudev.apps.googleusercontent.com";
+
+const GOOGLE_CLIENT_ID = IS_FIREFOX ? GOOGLE_CLIENT_ID_FIREFOX : GOOGLE_CLIENT_ID_CHROME;
+const SCOPES = "https://www.googleapis.com/auth/forms.body";
+const REDIRECT_URL = browser.identity.getRedirectURL();
+
+async function getTokenChrome(interactive) {
+  return new Promise((resolve, reject) => {
+    chrome.identity.getAuthToken({ interactive }, (token) => {
+      if (chrome.runtime.lastError || !token) {
+        reject(new Error(chrome.runtime.lastError?.message || "Auth failed"));
+      } else {
+        resolve(token);
+      }
+    });
+  });
+}
+
+async function getTokenFirefox(interactive) {
+  // Return cached token if present
+  if (_firefoxToken) return _firefoxToken;
+  if (!interactive) throw new Error("Not authenticated");
+
+  const authUrl =
+    `https://accounts.google.com/o/oauth2/auth` +
+    `?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
+    `&response_type=token` +
+    `&redirect_uri=${encodeURIComponent(REDIRECT_URL)}` +
+    `&scope=${encodeURIComponent(SCOPES)}`;
+
+  const redirectResult = await browser.identity.launchWebAuthFlow({
+    url: authUrl,
+    interactive: true,
+  });
+
+  // Parse the access_token from the redirect URL hash fragment
+  const url = new URL(redirectResult);
+  const params = new URLSearchParams(url.hash.slice(1)); // remove the '#'
+  const token = params.get("access_token");
+  if (!token) throw new Error("No access token in redirect response");
+
+  _firefoxToken = token;
+  return token;
+}
+
+async function getToken(interactive = true) {
+  return IS_FIREFOX ? getTokenFirefox(interactive) : getTokenChrome(interactive);
 }
 
 // Ensure the extension installs properly
@@ -13,23 +77,17 @@ browser.runtime.onInstalled.addListener(() => {
 // Listen for messages from the popup
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "check_auth") {
-    // Check if we already have a cached token without triggering a popup
-    chrome.identity.getAuthToken({ interactive: false }, (token) => {
-      sendResponse({ authenticated: !!token });
-    });
+    getToken(false)
+      .then(() => sendResponse({ authenticated: true }))
+      .catch(() => sendResponse({ authenticated: false }));
     return true;
   }
 
   if (message.action === "authenticate") {
-    // Explicitly request auth with an interactive popup if necessary
-    chrome.identity.getAuthToken({ interactive: true }, (token) => {
-      if (chrome.runtime.lastError || !token) {
-        sendResponse({ success: false, error: chrome.runtime.lastError?.message || "Authentication failed" });
-      } else {
-        sendResponse({ success: true });
-      }
-    });
-    return true; // Return true to keep the message channel open for the async response
+    getToken(true)
+      .then(() => sendResponse({ success: true }))
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true; // Keep message channel open for async response
   }
 
   if (message.action === "generate_form") {
@@ -44,19 +102,12 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+
 async function handleGenerateForm(prompt) {
   try {
     // 1. Get OAuth token (should already be cached by the sign-in button)
     console.log("Getting OAuth token...");
-    const token = await new Promise((resolve, reject) => {
-      chrome.identity.getAuthToken({ interactive: false }, (token) => {
-        if (chrome.runtime.lastError || !token) {
-          reject(new Error(chrome.runtime.lastError?.message || "Not authenticated. Please sign in first."));
-        } else {
-          resolve(token);
-        }
-      });
-    });
+    const token = await getToken(false);
 
     // 2. Send prompt to backend proxy to get generated JSON
     console.log("Sending prompt to backend proxy...");

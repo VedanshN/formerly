@@ -6,8 +6,22 @@ const { OpenAI } = require("openai");
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Enable CORS so the Chrome extension can make requests
-app.use(cors());
+// Allow requests from Chrome extensions, Firefox extensions, and localhost dev
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman) or from extension/localhost origins
+    if (
+      !origin ||
+      origin.startsWith("chrome-extension://") ||
+      origin.startsWith("moz-extension://") ||
+      origin.startsWith("http://localhost")
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}));
 app.use(express.json());
 
 const openai = new OpenAI({
