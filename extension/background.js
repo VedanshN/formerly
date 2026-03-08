@@ -202,6 +202,13 @@ function buildBatchUpdates(aiData) {
         item.questionItem.question.textQuestion = {};
       } else if (q.type === "PARAGRAPH") {
         item.questionItem.question.textQuestion = { paragraph: true };
+      } else if (q.type === "SCALE") {
+        item.questionItem.question.scaleQuestion = {
+          low: q.scale?.low ?? 1,
+          high: q.scale?.high ?? 5,
+          lowLabel: q.scale?.lowLabel || "",
+          highLabel: q.scale?.highLabel || ""
+        };
       } else if (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES" || q.type === "DROPDOWN") {
         const choiceQuestion = {
           type: q.type === "MULTIPLE_CHOICE" ? "RADIO" : q.type === "CHECKBOXES" ? "CHECKBOX" : "DROP_DOWN",

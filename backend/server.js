@@ -51,8 +51,9 @@ You must respond with ONLY a raw JSON object matching this schema exactly:
   "questions": [
     {
       "title": "String, the question text",
-      "type": "String, EXACTLY ONE OF: 'SHORT_ANSWER', 'PARAGRAPH', 'MULTIPLE_CHOICE', 'CHECKBOXES', 'DROPDOWN'",
-      "options": ["String", "array of choices, ONLY if type is MULTIPLE_CHOICE, CHECKBOXES, or DROPDOWN"]
+      "type": "String, EXACTLY ONE OF: 'SHORT_ANSWER', 'PARAGRAPH', 'MULTIPLE_CHOICE', 'CHECKBOXES', 'DROPDOWN', 'SCALE'",
+      "options": ["String", "array of choices, ONLY if type is MULTIPLE_CHOICE, CHECKBOXES, or DROPDOWN"],
+      "scale": {"low": 1, "high": 5, "lowLabel": "Poor", "highLabel": "Excellent"} // ONLY if type is SCALE. 'low' must be 0 or 1. 'high' must be 2 to 10.
     }
   ]
 }`,
