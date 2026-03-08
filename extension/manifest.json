@@ -27,7 +27,13 @@
     "service_worker": "background.js",
     "scripts": ["js/browser-polyfill.js", "background.js"]
   },
+  "icons": {
+    "16": "static/icon16.png",
+    "48": "static/icon48.png",
+    "128": "static/icon128.png"
+  },
   "action": {
-    "default_popup": "static/popup.html"
+    "default_popup": "static/popup.html",
+    "default_icon": "static/icon48.png"
   }
 }
