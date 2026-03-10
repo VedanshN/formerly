@@ -16,8 +16,8 @@ export default function Footer() {
 
         <nav className="footer__links" aria-label="Footer navigation">
           <a href="/privacy.html">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
-          <a href="mailto:hello@formerly.app">Contact</a>
+          <a href="https://github.com/VedanshN/formerly?tab=GPL-3.0-1-ov-file">Terms of Use</a>
+          <a href="https://github.com/VedanshN/formerly/issues">Contact</a>
           <a href="https://github.com/VedanshN/formerly" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
