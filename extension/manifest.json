@@ -4,12 +4,10 @@
   "description": "An extension that creates all the google forms for you with a simple prompt.",
   "manifest_version": 3,
   "permissions": [
-    "activeTab",
-    "scripting",
     "identity"
   ],
   "host_permissions": [
-    "http://localhost:3000/",
+    "https://cnhraouen4vy98avav8nqy8rsm4c.vercel.app/",
     "https://forms.googleapis.com/"
   ],
   "oauth2": {

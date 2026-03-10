@@ -74,11 +74,32 @@ browser.runtime.onInstalled.addListener(() => {
   console.log("Formerly extension installed via cross-browser polyfill.");
 });
 
+async function validateToken(token) {
+  try {
+    const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${token}`);
+    if (res.ok) {
+      return true;
+    }
+    // Token is invalid/expired
+    if (IS_FIREFOX) {
+      _firefoxToken = null;
+    } else {
+      await new Promise(resolve => chrome.identity.removeCachedAuthToken({ token }, resolve));
+    }
+  } catch (e) {
+    console.warn("Token validation failed:", e);
+  }
+  return false;
+}
+
 // Listen for messages from the popup
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "check_auth") {
     getToken(false)
-      .then(() => sendResponse({ authenticated: true }))
+      .then(async (token) => {
+        const isValid = await validateToken(token);
+        sendResponse({ authenticated: isValid });
+      })
       .catch(() => sendResponse({ authenticated: false }));
     return true;
   }
@@ -107,11 +128,17 @@ async function handleGenerateForm(prompt) {
   try {
     // 1. Get OAuth token (should already be cached by the sign-in button)
     console.log("Getting OAuth token...");
-    const token = await getToken(false);
+    let token = await getToken(false);
+
+    // 1b. Validate token locally before doing anything else
+    const isValid = await validateToken(token);
+    if (!isValid) {
+      throw new Error("Authentication token is invalid or expired. Please sign in again.");
+    }
 
     // 2. Send prompt to backend proxy to get generated JSON
     console.log("Sending prompt to backend proxy...");
-    const response = await fetch("http://localhost:3000/api/generate-form", {
+    const response = await fetch("https://cnhraouen4vy98avav8nqy8rsm4c.vercel.app/api/generate-form", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -138,6 +165,17 @@ async function handleGenerateForm(prompt) {
         info: { title: aiFormData.title || "Untitled Form" }
       })
     });
+
+    // If the token expired *during* the backend request (rare but possible), handle it
+    if (createRes.status === 401) {
+       if (IS_FIREFOX) {
+          _firefoxToken = null;
+       } else {
+          await new Promise(resolve => chrome.identity.removeCachedAuthToken({ token }, resolve));
+       }
+       throw new Error("Session expired during form generation. Please sign in again.");
+    }
+
 
     if (!createRes.ok) throw new Error(`Forms API create error: ${createRes.status}`);
     const formMetadata = await createRes.json();
