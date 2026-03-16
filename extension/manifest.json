@@ -1,6 +1,6 @@
 {
   "name": "Formerly",
-  "version": "1.0",
+  "version": "1.1",
   "description": "An extension that creates all the google forms for you with a simple prompt.",
   "manifest_version": 3,
   "permissions": [

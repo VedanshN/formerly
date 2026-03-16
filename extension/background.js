@@ -19,7 +19,7 @@ let _firefoxToken = null;
 // Chrome uses the Extension-type Client ID (matched against Extension ID in Google Cloud).
 // Firefox requires a Web Application-type Client ID with the redirect URL added as an authorized redirect URI.
 // To get your Firefox redirect URL: open about:debugging → Inspect your extension → run browser.identity.getRedirectURL() in the console.
-const GOOGLE_CLIENT_ID_CHROME  = "721197352862-3gqq00qkjt21pds2bbtkp4u7go6qf6cn.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID_CHROME  = "721197352862-3d7s8hdggep5iv7c4f2m6bt4o0rk9f5g.apps.googleusercontent.com";
 const GOOGLE_CLIENT_ID_FIREFOX = "721197352862-n3uisqfshh7n79g9anudr873pi6pudev.apps.googleusercontent.com";
 
 const GOOGLE_CLIENT_ID = IS_FIREFOX ? GOOGLE_CLIENT_ID_FIREFOX : GOOGLE_CLIENT_ID_CHROME;
