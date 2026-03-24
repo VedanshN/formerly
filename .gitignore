@@ -16,7 +16,7 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
-
+.env.js
 # Logs
 npm-debug.log*
 yarn-debug.log*
