@@ -2,9 +2,9 @@
 // In Firefox, it's already loaded via background.scripts in the manifest.
 if (typeof importScripts !== "undefined") {
   try {
-    importScripts("js/browser-polyfill.js");
+    importScripts("env.js", "js/browser-polyfill.js");
   } catch (e) {
-    console.error("Polyfill import failed", e);
+    console.error("Polyfill/Env import failed", e);
   }
 }
 
@@ -19,8 +19,8 @@ let _firefoxToken = null;
 // Chrome uses the Extension-type Client ID (matched against Extension ID in Google Cloud).
 // Firefox requires a Web Application-type Client ID with the redirect URL added as an authorized redirect URI.
 // To get your Firefox redirect URL: open about:debugging → Inspect your extension → run browser.identity.getRedirectURL() in the console.
-const GOOGLE_CLIENT_ID_CHROME  = "721197352862-3d7s8hdggep5iv7c4f2m6bt4o0rk9f5g.apps.googleusercontent.com";
-const GOOGLE_CLIENT_ID_FIREFOX = "721197352862-n3uisqfshh7n79g9anudr873pi6pudev.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID_CHROME  = ENV.GOOGLE_CLIENT_ID_CHROME;
+const GOOGLE_CLIENT_ID_FIREFOX = ENV.GOOGLE_CLIENT_ID_FIREFOX;
 
 const GOOGLE_CLIENT_ID = IS_FIREFOX ? GOOGLE_CLIENT_ID_FIREFOX : GOOGLE_CLIENT_ID_CHROME;
 const SCOPES = "https://www.googleapis.com/auth/forms.body";
@@ -138,7 +138,7 @@ async function handleGenerateForm(prompt) {
 
     // 2. Send prompt to backend proxy to get generated JSON
     console.log("Sending prompt to backend proxy...");
-    const response = await fetch("https://cnhraouen4vy98avav8nqy8rsm4c.vercel.app/api/generate-form", {
+    const response = await fetch(ENV.API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

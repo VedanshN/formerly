@@ -1,6 +1,6 @@
 {
   "name": "Formerly",
-  "version": "1.1",
+  "version": "1.2",
   "description": "An extension that creates all the google forms for you with a simple prompt.",
   "manifest_version": 3,
   "permissions": [
@@ -11,7 +11,7 @@
     "https://forms.googleapis.com/"
   ],
   "oauth2": {
-    "client_id": "721197352862-3gqq00qkjt21pds2bbtkp4u7go6qf6cn.apps.googleusercontent.com",
+    "client_id": "721197352862-3d7s8hdggep5iv7c4f2m6bt4o0rk9f5g.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/forms.body"
     ]
@@ -23,7 +23,7 @@
   },
   "background": {
     "service_worker": "background.js",
-    "scripts": ["js/browser-polyfill.js", "background.js"]
+    "scripts": ["env.js", "js/browser-polyfill.js", "background.js"]
   },
   "icons": {
     "16": "static/icon16.png",
